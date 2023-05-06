@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <string.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <readline/readline.h>
 # include <readline/history.h>
 
@@ -71,6 +72,12 @@ typedef struct  t_export
 
 typedef struct tools
 {
+    int     i;
+    int     j;
+    int     k;
+    int     l;
+    char    *new;
+    int     flag;
     int there_is_dollar;
     int s_quote;
     int d_quote;
@@ -100,7 +107,7 @@ typedef struct global
 t_global g_var;
 
 // Tokenizer Utils
-t_token_list    *tokenizer(char *line, t_tools *tools);
+t_token_list *tokenizer(char *line, t_token_list *tokens, t_tools *tools);
 char			*is_redirections(t_token_list **tokens, char *line, t_tools *tools);
 char			*is_wspace(t_token_list **tokens, char *line);
 char			*is_dollar_pipe(t_token_list **tokens, char *line);
@@ -173,9 +180,7 @@ int     ft_strcmp(char *s1, char *s2);
 int	ft_strncmp(const char *str1, const char *str2, size_t n);
 int     ft_strlen(char *str);
 int		count(char *line);
-int		inside_quotes(char *line, int i);
 int     all_spaces(char *line, int i);
-char    *skip_wspaces(char *line);
 char    *remove_additional_spaces(char *line);
 char	*ft_strchr(char *str, int c);
 void	ft_lstclear(t_token_list	**lst);
@@ -188,5 +193,27 @@ char	*ft_strdup(char *src);
 char	*ft_strndup(char *src, int len);
 int sig_handler(void);
 
+// new
+t_export	*addnew_export(char *var, char *value);
+void	addback_export(t_export **a, t_export *new);
+t_env_list	*addnew_env(char *var, char *value);
+void	addback_env(t_env_list **a, t_env_list *new);
+void    do_env(char *env[]);
+int check_if_equal_is(char *str);
+int check_if_exist(char *name, t_export *export);
+char *get_name(char *s);
+char *get_value(char *s);
+void	edit_value(char *name, char *value, t_export **data, t_env_list **env_list);
+int	check_append(char *s);
+void	append_string(char *name, char *value,t_export **export, t_env_list **env_list);
+void	error_od_export(char *s);
+int correct_name(char *s);
+int	eqaul_last_only(char *s);
+void	edit_env(t_env_list	**env_list, char *name, char *value);
+void	append_env(t_env_list **env_list, char *name, char *value);
+void	insert(t_export **head, t_export *new_node);
+void	sort(t_export **head);
+void	ft_putstr_fd(char *s, int fd);
+int     ft_atoi(const char *str);
 
 #endif

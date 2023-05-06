@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:54:41 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/05/02 16:57:30 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/05/06 18:47:38 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,36 +66,47 @@ char	*ft_squotes(t_token_list **tokens, char *line, t_tools *tools)
 void	open_quote_error(t_token_list **tokens)
 {
 	g_var.exit_state = 1;
-	write(1, "Open quote\n", ft_strlen("Open quote\n"));
+	write(1, "Syntax error: Open quote\n", ft_strlen("Syntax error: Open quote\n"));
 	ft_lstclear(tokens);
 }
 
-t_token_list *tokenizer(char *line, t_tools *tools)
+char*	tokenizer2(char *line, t_token_list *tokens, t_tools *tools, char quote)
 {
-	t_token_list	*tokens;
+	if (quote == '\'')
+	{
+		line = ft_squotes(&tokens, line, tools);
+		if (tools->s_quote == 1)
+		{
+			open_quote_error(&tokens);
+			return (NULL) ;
+		}
+	}
+	else
+	{
+		line = ft_dquotes(&tokens, line, tools);
+		if (tools->d_quote == 1)
+		{
+			open_quote_error(&tokens);
+			return (NULL);
+		}
+	}
+	return (line);
+}
+
+t_token_list *tokenizer(char *line, t_token_list *tokens, t_tools *tools)
+{
 	if (*line == '\0')
 		return (NULL);
-
-	tokens = NULL;
     while (line && *line)
     {
-        if (ft_strchr("\'", *line))
+        if (ft_strchr("\'", *line) || ft_strchr("\"", *line))
 		{
-			line = ft_squotes(&tokens, line, tools);
-			if (tools->s_quote == 1)
-			{
-				open_quote_error(&tokens);
-				return (NULL) ;
-			}
-		}
-		else if (ft_strchr("\"", *line))
-		{
-			line = ft_dquotes(&tokens, line, tools);
-			if (tools->d_quote == 1)
-			{
-				open_quote_error(&tokens);
-				return (NULL) ;
-			}
+			if (*line == '\'')
+				line = tokenizer2(line, tokens, tools, '\'');
+			else
+				line = tokenizer2(line, tokens, tools, '\"');
+			if (!line)
+				return (NULL);
 		}
         else if (ft_strchr(" \t\v\f\r", *line))
             line = is_wspace(&tokens, line);

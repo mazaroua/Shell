@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_env.c                                         :+:      :+:    :+:   */
+/*   export_utils1.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abenheni <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/17 02:19:42 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/05/03 16:45:12 by mazaroua         ###   ########.fr       */
+/*   Created: 2023/05/05 12:16:17 by abenheni          #+#    #+#             */
+/*   Updated: 2023/05/05 12:16:23 by abenheni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_export	*addnew1(char *var, char *value)
+t_export	*addnew_export(char *var, char *value)
 {
 	t_export	*new;
 
@@ -25,7 +25,7 @@ t_export	*addnew1(char *var, char *value)
 	return (new);
 }
 
-void	addback_export1(t_export **a, t_export *new)
+void	addback_export(t_export **a, t_export *new)
 {
 	t_export	*head;
 
@@ -42,7 +42,7 @@ void	addback_export1(t_export **a, t_export *new)
 	}
 }
 
-t_env_list	*addnew2_1(char *var, char *value)
+t_env_list	*addnew_env(char *var, char *value)
 {
 	t_env_list	*new;
 
@@ -55,7 +55,7 @@ t_env_list	*addnew2_1(char *var, char *value)
 	return (new);
 }
 
-void	addback_env2(t_env_list **a, t_env_list *new)
+void	addback_env(t_env_list **a, t_env_list *new)
 {
 	t_env_list	*head;
 
@@ -72,22 +72,15 @@ void	addback_env2(t_env_list **a, t_env_list *new)
 	}
 }
 
-void	init_env(t_export **export, t_env_list **env_list, char *env[])
+void	do_env(char *env[])
 {
-	int			i;
-	char		**var_val;
-	t_export	*new;
-	t_env_list	*new1;
+	int	i;
 
 	i = 0;
 	while (env[i])
 	{
-		var_val = ft_split(env[i], '=');
-		new = addnew1(var_val[0], var_val[1]);
-		addback_export1(export, new);
-		new1 = addnew2_1(var_val[0], var_val[1]);
-		addback_env2(env_list, new1);
+		ft_putstr(env[i]);
+		ft_putstr("\n");
 		i++;
 	}
-	sort(export);
 }

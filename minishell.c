@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 15:26:43 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/05/02 16:45:22 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/05/06 18:47:49 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ void	body(char *line, t_export **export_list, t_env_list **env_list)
 	t_tools			tools;
 
 	cmd_line = NULL;
-	tokens = tokenizer(line, &tools);
+	tokens = NULL;
+	tokens = tokenizer(line, tokens, &tools);
 	if (tokens && syntax(tokens))
 	{
 		expand(&tokens, env_list);
@@ -81,11 +82,49 @@ char    *prompt(void)
     char	*line;
 
 	line = readline("\x1B[36m""minishell$ ""\001\e[0m\002");
-	if (!line)
-		exit(0);
 	add_history(line);
 	line = remove_additional_spaces(line);
     return (line);
+}
+
+int	found_shlvl(t_env_list **envlist)
+{
+	t_env_list	*env;
+
+	env = *envlist;
+	while (env)
+	{
+		if (!ft_strcmp("SHLVL", env->name))
+			return (1);
+		env = env->next;
+	}
+	return (0);
+}
+
+void	ft_shlvl(t_env_list **envlist, t_export **export)
+{
+	t_env_list	*env;
+	t_export	*exp;
+
+	env = *envlist;
+	exp = *export;
+	if (!found_shlvl(envlist))
+	{
+		do_export(ft_split("export SHLVL=1", 32), export, envlist, 0);
+		return ;
+	}
+	while (env)
+	{
+		if (!ft_strcmp("SHLVL", env->name))
+			env->value = ft_itoa(ft_atoi(env->value) + 1);
+		env = env->next;
+	}
+	while (exp)
+	{
+		if (!ft_strcmp("SHLVL", exp->var))
+			exp->value = ft_itoa(ft_atoi(exp->value) + 1);
+		exp = exp->next;
+	}
 }
 
 int main(int ac, char **av, char **env)
@@ -99,11 +138,10 @@ int main(int ac, char **av, char **env)
 	export_list = NULL;
 	env_list = NULL;
 	init_env(&export_list, &env_list, env);
+	ft_shlvl(&env_list, &export_list);
     while (1)
     {
 		line = prompt();
-		if (!line)
-			exit(1);
 		if (line)
 			body(line, &export_list, &env_list);
     }

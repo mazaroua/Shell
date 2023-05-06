@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 22:31:13 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/05/04 17:02:19 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/05/06 15:44:04 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,31 +61,6 @@ void execute_command_2(t_cmd_line **cmd_line, t_env_list **env_list, t_export **
 		execve_func((*cmd_line)->str, env_list);
 }
 
-void execve_func(char **cmd, t_env_list **env_list)
-{
-	char **path;
-	char *cmd_;
-	char **envp;
-
-
-	path = get_path(env_list);
-	cmd_ = check_command_in_path(path, cmd[0]);
-	envp = create_envp(env_list);
-	if (ft_strchr(cmd[0], '/'))
-	{
-		execve(cmd[0], cmd, envp);
-		
-	}
-	else if (execve(cmd_, cmd, envp) == -1)
-	{
-		write (2, "minishell: ", 11);
-		write (2, cmd[0], ft_strlen(cmd[0]));
-		write (2, ": command not found\n", 20);
-		exit(127);
-	}
-	
-}
-
 char *check_command_in_path(char **path, char *cmd)
 {
 	int i;
@@ -103,4 +78,41 @@ char *check_command_in_path(char **path, char *cmd)
 		i++;
 	}
 	return (NULL);
+}
+
+void	print_error(char *cmd, char *error, int exit_status)
+{
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(cmd, 2);
+	ft_putstr_fd(error, 2);
+	exit(exit_status);
+}
+
+void execve_func(char **cmd, t_env_list **env_list)
+{
+	char **path;
+	char *cmd_;
+	char **envp;
+
+	path = get_path(env_list);
+	cmd_ = check_command_in_path(path, cmd[0]);
+	envp = create_envp(env_list);
+	if (ft_strchr(cmd[0], '/'))
+	{
+		if (opendir(cmd[0]))
+			print_error(cmd[0], ": is a directory\n", 126);
+		if (execve(cmd[0], cmd, envp) == -1)
+		{
+			
+			if (access(cmd[0], F_OK) == -1)
+				print_error(cmd[0]," :No such file or directory\n", 127);
+			else
+			{
+				if (access(cmd[0], X_OK) == -1)
+					print_error(cmd[0], " :Permission denied\n", 126);
+			}
+		}
+	}
+	else if (execve(cmd_, cmd, envp) == -1)
+		print_error(cmd[0], ": command not found\n", 127);
 }
